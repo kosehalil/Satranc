@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="SatrancTaslari\BBishop.png" />
+    <None Remove="SatrancTaslari\BKing.png" />
+    <None Remove="SatrancTaslari\BKnight.png" />
+    <None Remove="SatrancTaslari\Board.png" />
+    <None Remove="SatrancTaslari\boardMaviOlan.PNG" />
+    <None Remove="SatrancTaslari\BPawn.png" />
+    <None Remove="SatrancTaslari\BQueen.png" />
+    <None Remove="SatrancTaslari\BRook.png" />
+    <None Remove="SatrancTaslari\icon.ico" />
+    <None Remove="SatrancTaslari\WBishop.png" />
+    <None Remove="SatrancTaslari\WKing.png" />
+    <None Remove="SatrancTaslari\WKnight.png" />
+    <None Remove="SatrancTaslari\WPawn.png" />
+    <None Remove="SatrancTaslari\WQueen.png" />
+    <None Remove="SatrancTaslari\WRook.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SatrancMantigi\SatrancMantigi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="SatrancTaslari\BBishop.png" />
+    <Resource Include="SatrancTaslari\BKing.png" />
+    <Resource Include="SatrancTaslari\BKnight.png" />
+    <Resource Include="SatrancTaslari\Board.png" />
+    <Resource Include="SatrancTaslari\boardMaviOlan.PNG" />
+    <Resource Include="SatrancTaslari\BPawn.png" />
+    <Resource Include="SatrancTaslari\BQueen.png" />
+    <Resource Include="SatrancTaslari\BRook.png" />
+    <Resource Include="SatrancTaslari\icon.ico" />
+    <Resource Include="SatrancTaslari\WBishop.png" />
+    <Resource Include="SatrancTaslari\WKing.png" />
+    <Resource Include="SatrancTaslari\WKnight.png" />
+    <Resource Include="SatrancTaslari\WPawn.png" />
+    <Resource Include="SatrancTaslari\WQueen.png" />
+    <Resource Include="SatrancTaslari\WRook.png" />
+  </ItemGroup>
+
+</Project>
