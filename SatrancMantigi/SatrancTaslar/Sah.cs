@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SatrancMantigi.TasHareketleri;
 
 namespace SatrancMantigi
 {
@@ -32,6 +28,50 @@ namespace SatrancMantigi
         {
             Renkler = renkler;
         }
+
+        
+        private static bool KaleHareketEttirildiMi(Konum kon,SatrancTahtasi satrancTahtasi)
+        {
+            if (satrancTahtasi.BosMu(kon))
+            {
+                return false;
+            }
+            SatrancTaslar satrancTaslar = satrancTahtasi[kon];
+            return satrancTaslar.Cesitler == SatrancTaslarininCesitleri.Kale && !satrancTaslar.tasHareketi;
+
+
+        }
+
+        private static bool TamamenBosMu(IEnumerable<Konum> konums , SatrancTahtasi satrancTahtasi)
+        {
+            return konums.All(kon => satrancTahtasi.BosMu(kon));
+        }
+
+        private bool SahKanadinaRookYapilabilirMi(Konum suankiKon, SatrancTahtasi satrancTahtasi)
+        {
+            if (tasHareketi)
+            {
+                return false;
+            }
+            Konum rookPos = new Konum(suankiKon.Satır, 7);
+            Konum[] betweenPosition = new Konum[] { new(suankiKon.Satır, 5), new(suankiKon.Satır, 6) };
+
+            return KaleHareketEttirildiMi(rookPos, satrancTahtasi) && TamamenBosMu(betweenPosition, satrancTahtasi);
+        }
+
+        private bool VezirKanadinaRookYapilabilirMi(Konum suankiKon, SatrancTahtasi satrancTahtasi)
+        {
+            if (tasHareketi)
+            {
+                return false;
+            }
+
+            Konum rookPos = new Konum(suankiKon.Satır, 0);
+            Konum[] betweenPosition = new Konum[] { new(suankiKon.Satır, 1), new(suankiKon.Satır, 2), new(suankiKon.Satır, 3) };
+
+            return KaleHareketEttirildiMi(rookPos, satrancTahtasi) && TamamenBosMu(betweenPosition, satrancTahtasi);
+        }
+
 
         // ayni renk icin islemlerin kopyalanmasi kismi burada da yapilir
         public override SatrancTaslar Kopyasi()
@@ -67,6 +107,25 @@ namespace SatrancMantigi
             {
                 yield return new NormalHamleler(suankiKon, yeniKon);
             }
+
+            if (SahKanadinaRookYapilabilirMi(suankiKon, satrancTahtasi))
+            {
+                yield return new RookAtma(HamleCesitleri.SahKanadinaRookAtma, suankiKon);
+            }
+
+            if(VezirKanadinaRookYapilabilirMi(suankiKon, satrancTahtasi))
+            {
+                yield return new RookAtma(HamleCesitleri.VezirKanadinaRookAtma, suankiKon);
+            }
+        }
+
+        public override bool SahinYoluEngellenebilirMi(Konum suankiKon, SatrancTahtasi satrancTahtasi)
+        {
+            return HareketEtmePozisyonlar(suankiKon, satrancTahtasi).Any(yeniKon =>
+            {
+                SatrancTaslar satrancTaslar = satrancTahtasi[yeniKon];
+                return satrancTaslar != null && satrancTaslar.Cesitler == SatrancTaslarininCesitleri.Sah;
+            });
         }
     }
 }

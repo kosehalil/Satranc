@@ -8,6 +8,12 @@ namespace SatrancMantigi
         // 8 satir 8 sütundan olusuyor 0-7 degerleri arasindan..
         private readonly SatrancTaslar[,] satranctaslar = new SatrancTaslar[8, 8];
 
+        private readonly Dictionary<Oyuncu, Konum> piyonGecisPozisyonlari = new Dictionary<Oyuncu, Konum>
+        {
+            {Oyuncu.beyaz, null },
+            {Oyuncu.siyah, null }
+        };
+
         // Burada bir get ve set edebilecegimiz bir property yani özellik tanimliyoruz
         public SatrancTaslar this[int satir, int sutun]   
         {
@@ -20,6 +26,16 @@ namespace SatrancMantigi
         {
             get { return this[kon.Satır, kon.Sutun]; }      // kısaca tasların konumlarını get ve set edip
             set { this[kon.Satır, kon.Sutun] = value; }     // okuyup degistirebilmemize yarar
+        }
+
+        public Konum PiyonGecisKonumunuGoster(Oyuncu oyuncu) 
+        {
+            return piyonGecisPozisyonlari[oyuncu];
+        }
+
+        public void PiyonGecisKonumunuBelirle(Oyuncu oyuncu, Konum kon) 
+        {
+            piyonGecisPozisyonlari[oyuncu] = kon;
         }
 
         // Satranc Tahtasinin baslangic durumu olustuluyor ilk konumlar yani.
@@ -70,6 +86,178 @@ namespace SatrancMantigi
         public bool BosMu(Konum kon)
         {
             return this[kon] == null;
+        }
+
+        public IEnumerable<Konum> TasPozisyonlari()
+        {
+            for (int r = 0; r < 8; r++)
+            {
+                for(int c = 0; c < 8; c++)
+                {
+                    Konum kon = new Konum(r, c);
+
+                    if (!BosMu(kon))
+                    {
+                        yield return kon;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<Konum> TasPozisyonlarinaBagliOlarak(Oyuncu oyuncu)
+        {
+            return TasPozisyonlari().Where(kon => this[kon].Renkler == oyuncu);
+        }
+
+        public bool SahCekiliyorMu (Oyuncu oyuncu)
+        {
+            return TasPozisyonlarinaBagliOlarak(oyuncu.Rakibi()).Any(kon =>
+            {
+                SatrancTaslar satrancTaslar = this[kon];
+                return satrancTaslar.SahinYoluEngellenebilirMi(kon, this);
+            });
+        }
+
+        public SatrancTahtasi Kopyasi()
+        {
+            SatrancTahtasi kopyasi = new SatrancTahtasi();
+
+            foreach(Konum kon in TasPozisyonlari())
+            {
+                kopyasi[kon] = this[kon].Kopyasi();
+            }
+
+            return kopyasi;
+        }
+
+        public SatrancTaslarinSayimi TasSayimi()
+        {
+            SatrancTaslarinSayimi satrancTaslarininSayimi = new SatrancTaslarinSayimi();
+
+            foreach(Konum kon in TasPozisyonlari())
+            {
+                SatrancTaslar satrancTaslar = this[kon];
+                satrancTaslarininSayimi.Artis(satrancTaslar.Renkler, satrancTaslar.Cesitler);
+            }
+            return satrancTaslarininSayimi;
+        }
+
+        public bool YetersizTasKalmasi()
+        {
+            SatrancTaslarinSayimi satrancTaslarinSayimi = TasSayimi();
+            return TahtadaSadeceSahvsSahKaldiginda(satrancTaslarinSayimi) || TahtadaSahFilvsSahKaldiginda(satrancTaslarinSayimi) ||
+                   TahtadaSahAtvsSahKaldiginda(satrancTaslarinSayimi) || TahtadaSahFilvsSahFilKaldiginda(satrancTaslarinSayimi);
+                   
+        }
+        
+        private static bool TahtadaSadeceSahvsSahKaldiginda(SatrancTaslarinSayimi satrancTaslarinSayimi)
+        {
+            return satrancTaslarinSayimi.toplamTaslarinSayimi == 2;
+        }
+
+        private static bool TahtadaSahFilvsSahKaldiginda(SatrancTaslarinSayimi satrancTaslarinSayimi)
+        {
+            return satrancTaslarinSayimi.toplamTaslarinSayimi == 3 && (satrancTaslarinSayimi.Beyaz(SatrancTaslarininCesitleri.Fil) == 1 || satrancTaslarinSayimi.Siyah(SatrancTaslarininCesitleri.Fil) == 1);
+        }
+
+        private static bool TahtadaSahAtvsSahKaldiginda(SatrancTaslarinSayimi satrancTaslarinSayimi)
+        {
+            return satrancTaslarinSayimi.toplamTaslarinSayimi == 3 && (satrancTaslarinSayimi.Beyaz(SatrancTaslarininCesitleri.At) == 1 || satrancTaslarinSayimi.Siyah(SatrancTaslarininCesitleri.At) == 1);
+        }
+
+        private bool TahtadaSahFilvsSahFilKaldiginda(SatrancTaslarinSayimi satrancTaslarinSayimi)
+        {
+            if(satrancTaslarinSayimi.toplamTaslarinSayimi != 4)
+            {
+                return false;
+            }
+            if(satrancTaslarinSayimi.Beyaz(SatrancTaslarininCesitleri.Fil) !=1 || satrancTaslarinSayimi.Siyah(SatrancTaslarininCesitleri.Fil) != 1)
+            {
+                return false;
+            }
+
+            Konum beyazFilPozisyonu = SecilenTasNedir(Oyuncu.beyaz, SatrancTaslarininCesitleri.Fil);
+            Konum siyahFilPozisyonu = SecilenTasNedir(Oyuncu.siyah, SatrancTaslarininCesitleri.Fil);
+
+            return beyazFilPozisyonu.KarelerinRengi() == siyahFilPozisyonu.KarelerinRengi();
+        }
+
+        private Konum SecilenTasNedir(Oyuncu renkler, SatrancTaslarininCesitleri cesit)
+        {
+            return TasPozisyonlarinaBagliOlarak(renkler).First(kon => this[kon].Cesitler == cesit);
+        }
+
+        private bool SahVeKaleHareketEttiMi(Konum SahPozisyonu, Konum KalePozisyonu)
+        {
+            if(BosMu(SahPozisyonu) || BosMu(KalePozisyonu))
+            {
+                return false; 
+            }
+
+            SatrancTaslar sah = this[SahPozisyonu];
+            SatrancTaslar kale = this[KalePozisyonu];
+
+            return sah.Cesitler == SatrancTaslarininCesitleri.Sah && kale.Cesitler == SatrancTaslarininCesitleri.Kale &&
+                   !sah.tasHareketi && !kale.tasHareketi;
+
+        }
+
+        public bool SahKanadinaRookAtilabilirMi(Oyuncu oyuncu) 
+        {
+            return oyuncu switch
+            {
+                Oyuncu.beyaz => SahVeKaleHareketEttiMi(new Konum(7, 4), new Konum(7, 7)),
+                Oyuncu.siyah => SahVeKaleHareketEttiMi(new Konum(0, 4), new Konum(0, 7)),
+                _ => false
+            };
+        } 
+
+        public bool VezirKanadinaRookAtilabilirMi(Oyuncu oyuncu)
+        {
+            return oyuncu switch
+            {
+                Oyuncu.beyaz => SahVeKaleHareketEttiMi(new Konum(7, 4), new Konum(7, 0)),
+                Oyuncu.siyah => SahVeKaleHareketEttiMi(new Konum(0, 4), new Konum(0, 0)),
+                _ => false
+            };
+        }
+         
+        private bool KonumdaPiyonVarMi(Oyuncu oyuncu , Konum[] piyonPozisyonlari , Konum skipPos)
+        {
+            foreach(Konum kon in piyonPozisyonlari.Where(SinirlerinİcindeMi))
+            {
+                SatrancTaslar satrancTaslar = this[kon];
+                if(satrancTaslar == null || satrancTaslar.Renkler != oyuncu || satrancTaslar.Cesitler != SatrancTaslarininCesitleri.Piyon)
+                {
+                    continue;
+                }
+                GecerkenAlma hareketEtme = new GecerkenAlma(kon, skipPos);
+                if (hareketEtme.HamlelerGecerliMi(this))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool PiyonGecerkenAlmaYapabilirMi(Oyuncu oyuncu) 
+        {
+            Konum skipPos = PiyonGecisKonumunuGoster(oyuncu.Rakibi());
+
+            if(skipPos == null)
+            {
+                return false;
+            }
+
+            Konum[] piyonPozisyonlari = oyuncu switch
+            {
+                Oyuncu.beyaz => new Konum[] { skipPos + Yonler.GuneyBati, skipPos + Yonler.GuneyDogu },
+                Oyuncu.siyah => new Konum[] { skipPos + Yonler.KuzeyBati, skipPos + Yonler.KuzeyDogu },
+                _ => Array.Empty<Konum>()
+            };
+
+            return KonumdaPiyonVarMi(oyuncu, piyonPozisyonlari, skipPos);
         }
 
     }

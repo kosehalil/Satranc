@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SatrancMantigi
+﻿namespace SatrancMantigi
 {
     public abstract class SatrancTaslar
     {
@@ -47,6 +40,15 @@ namespace SatrancMantigi
         protected IEnumerable<Konum> BelirliYonlerdeHareketEtme(Konum suankiKon, SatrancTahtasi satrancTahtasi, Yonler[] yonlers)
         {
             return yonlers.SelectMany(yonler => PozisyonYonundeHareketEtme(suankiKon, satrancTahtasi, yonler));
+        }
+
+        public virtual bool SahinYoluEngellenebilirMi (Konum suankiKon, SatrancTahtasi satrancTahtasi)
+        {
+            return HamleleriYap(suankiKon, satrancTahtasi).Any(hareketEtme =>
+            {
+                SatrancTaslar satrancTaslar = satrancTahtasi[hareketEtme.yeniKonuma];
+                return satrancTaslar != null && satrancTaslar.Cesitler == SatrancTaslarininCesitleri.Sah;
+            });
         }
     }
 }

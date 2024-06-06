@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,13 +25,15 @@ namespace SatrancMantigi
 
 
         // normal hareketler burada gerceklesiyor
-        public override void Calistir(SatrancTahtasi satrancTahtasi) 
+        public override bool Calistir(SatrancTahtasi satrancTahtasi) 
         {
             SatrancTaslar satrancTaslar = satrancTahtasi[suankiKonumdan];  // ilk önce suan bulundugu konumdaki tası buluyor 
+            bool capture = !satrancTahtasi.BosMu(yeniKonuma);
             satrancTahtasi[yeniKonuma] = satrancTaslar;                   // secilen bulunan tas yeni konuma tasınıyor
             satrancTahtasi[suankiKonumdan] = null;                       // mevcut konuma artık o tas geliniyor tas varsa siliniyor yeme islemi gerceklesmis oluyor
             satrancTaslar.tasHareketi = true;                           // burası da hamlelerin ilk durumlarının tutulması oluyor kısaca (tasHareketi
-                                                                       // rok atmadan önce sah'in veya kalenin hareket edip etmedigini kontrol etmek icin
+                                                                        // rok atmadan önce sah'in veya kalenin hareket edip etmedigini kontrol etmek icin
+            return capture || satrancTaslar.Cesitler == SatrancTaslarininCesitleri.Piyon;
         }
     }
 }

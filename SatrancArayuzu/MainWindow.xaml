@@ -8,7 +8,8 @@
         Title="Hru-Satranc" Width="700" SizeToContent="Height"
         Icon="SatrancTaslari/icon.ico"
         WindowStartupLocation="CenterScreen"
-        Background="#9fb6cd">
+        Background="#9fb6cd"
+        KeyDown="TusaBasma">
 
     <Viewbox>
         <Grid x:Name="Satranc" Width="600" Height="600" MouseDown="SatrancTahtasinaTiklamak">
@@ -30,6 +31,9 @@
                
             
             </UniformGrid>
+
+            <ContentControl x:Name="MenuKutusu"> </ContentControl>
+            
         </Grid>
     </Viewbox>
 </Window>

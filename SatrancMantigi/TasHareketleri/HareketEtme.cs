@@ -17,6 +17,14 @@ namespace SatrancMantigi
 
         public abstract Konum yeniKonuma { get; }  
 
-        public abstract void Calistir(SatrancTahtasi satrancTahtasi);
+        public abstract bool Calistir(SatrancTahtasi satrancTahtasi);
+
+        public virtual bool HamlelerGecerliMi(SatrancTahtasi satrancTahtasi) 
+        {
+            Oyuncu oyuncu = satrancTahtasi[suankiKonumdan].Renkler;
+            SatrancTahtasi tahtayiKopyala = satrancTahtasi.Kopyasi();
+            Calistir(tahtayiKopyala);
+            return !tahtayiKopyala.SahCekiliyorMu(oyuncu);
+        }
     }
 }

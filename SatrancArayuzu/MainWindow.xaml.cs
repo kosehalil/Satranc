@@ -63,6 +63,10 @@ namespace SatrancArayuzu
 
         private void SatrancTahtasinaTiklamak(object sender, MouseButtonEventArgs e)
         {
+            if (MenuEkraniAcikMi())
+            {
+                return;
+            }
             Point point = e.GetPosition(Satranc);               // GetPosition C# metodu fare tiklamalari icin kullanilir.
             Konum kon = KareninKonumunuAl(point);                 // Pointte bir C# metodu frameworkudur X-Y kordinatini belirler MainWindowdaki satir = 8 , sütun = 8 kisim.
 
@@ -77,11 +81,14 @@ namespace SatrancArayuzu
          
         }
 
+
+
         private Konum KareninKonumunuAl(Point point)
         {
-            double squareSize = Satranc.ActualWidth / 8;
-            int satir = (int)(point.Y / squareSize);
-            int sutun = (int)(point.X / squareSize);
+
+            double kareBoyutu = Satranc.ActualWidth / 8;
+            int satir = (int)(point.Y / kareBoyutu);
+            int sutun = (int)(point.X / kareBoyutu);
 
             return new Konum(satir, sutun);
 
@@ -100,16 +107,45 @@ namespace SatrancArayuzu
             }
         }
 
+
         // Yesil olarak gösterilen konumlardan birine gittiginde de burasi calisiyor konuma gidiyor.
         private void HedeflenenKonumSecildiginde(Konum kon)
         {
+
+
             secilenKonum = null;
             HamlelerinKonumlarinRenklendirilmesiniGosterme();
 
             if(HamlelerinTutulmasiSaklanmasi.TryGetValue(kon, out HareketEtme hareketler))
             {
-                HamleYapilsin(hareketler);
+
+                if(hareketler.hamleCesitleri == HamleCesitleri.PiyonTerfisi)
+                {
+                    PiyonTerfisiKontrolu(hareketler.suankiKonumdan, hareketler.yeniKonuma);
+                }
+                else
+                {
+                    HamleYapilsin(hareketler);
+                }
+
             }
+        }
+
+
+        private void PiyonTerfisiKontrolu(Konum suankiKon, Konum yeniKon) 
+        {
+            tasResimleri[yeniKon.Satır, yeniKon.Sutun].Source = Resimlerr.GoruntuyuAl(oyunDurumu.SuankiOyuncu, SatrancTaslarininCesitleri.Piyon);
+            tasResimleri[suankiKon.Sutun, suankiKon.Sutun].Source = null;
+
+            PiyonTerfiMenusu piyonTerfiMenusu = new PiyonTerfiMenusu(oyunDurumu.SuankiOyuncu);
+            MenuKutusu.Content = piyonTerfiMenusu;
+
+            piyonTerfiMenusu.YapilanSecim += cesit =>
+            {
+                MenuKutusu.Content = null;
+                HareketEtme terfiHar = new PiyonTerfisi(suankiKon, yeniKon, cesit);
+                HamleYapilsin(terfiHar);
+            };
         }
 
         // Burada hamle yapılarak oyun durumuna yansıtılıyor hareket ettirilip tahta yeniden cizdiriliyor.
@@ -117,6 +153,11 @@ namespace SatrancArayuzu
         {
             oyunDurumu.HareketeGecme(hareketler);
             TahtaninOlusturulmasi(oyunDurumu.SatrancTahtasi);
+
+            if (oyunDurumu.OyunBittiMi())
+            {
+                OyunBitisEkraniGoster();
+            }
         }
 
 
@@ -149,6 +190,64 @@ namespace SatrancArayuzu
             {
                 isikizgaralari[yeniKon.Satır, yeniKon.Sutun].Fill = Brushes.Transparent;  // Brushes.Transparent seffaf görüntü saglatir.
             }
+        }
+
+        private bool MenuEkraniAcikMi() 
+        {
+            return MenuKutusu.Content != null;
+        }
+
+        private void OyunBitisEkraniGoster()
+        {
+            OyunBitisMenusu oyunBitisMenusu = new OyunBitisMenusu(oyunDurumu);
+            MenuKutusu.Content = oyunBitisMenusu;                // content erisim saglamak icin 
+
+            oyunBitisMenusu.YapilanSecim += menuAyarlari =>
+            {
+                if (menuAyarlari == MenuAyarlari.TekrarOyna)
+                {
+                    MenuKutusu.Content = null;
+                    OyunuTekrarBaslat();
+                }
+                else
+                {
+                    Application.Current.Shutdown();    // kapatmak icin metod shutdown
+                }
+            };
+        }
+
+        private void OyunuTekrarBaslat() 
+        {
+            secilenKonum = null;
+            HamlelerinKonumlarinRenklendirilmesiniGosterme();
+            HamlelerinTutulmasiSaklanmasi.Clear();
+            oyunDurumu = new SatrancOyunDurumu(Oyuncu.beyaz, SatrancTahtasi.TahtaBaslangici());
+            TahtaninOlusturulmasi(oyunDurumu.SatrancTahtasi);
+
+        }
+
+        private void TusaBasma(object sender, KeyEventArgs e) 
+        {
+            if(!MenuEkraniAcikMi() && e.Key == Key.Escape)
+            {
+                DurdurmaMenusunuGoster();
+            }
+        }
+
+        private void DurdurmaMenusunuGoster()
+        {
+            SatrancDuraklatmaMenusu duraklatmaMenusu = new SatrancDuraklatmaMenusu();
+            MenuKutusu.Content = duraklatmaMenusu;
+
+            duraklatmaMenusu.YapilanSecim += ayarlar =>
+            {
+                MenuKutusu.Content = null;
+
+                if (ayarlar == MenuAyarlari.TekrarOyna)
+                {
+                    OyunuTekrarBaslat();
+                }
+            };
         }
     }
 }

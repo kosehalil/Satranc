@@ -12,7 +12,7 @@
     // Yani ben Beyaz isim Siyah rakibimdir gibi özellik tasir..
     public static class OyuncuRakibiBelirleme
     {
-        public static Oyuncu Rakibi (this Oyuncu Oyuncu)
+        public static Oyuncu Rakibi(this Oyuncu Oyuncu)
         {
             switch (Oyuncu)
             {

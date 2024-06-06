@@ -4,6 +4,42 @@
              xmlns:local="clr-namespace:SatrancArayuzu"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        
+        <SolidColorBrush x:Key="Renk"> #260000</SolidColorBrush>
+        <SolidColorBrush x:Key="IcRenk"> #cc380404</SolidColorBrush>
+        <SolidColorBrush x:Key="YaziRengi"> #ffa274</SolidColorBrush>
+        <SolidColorBrush x:Key="ButonRengi"> #730909</SolidColorBrush>
+
+        <Style TargetType="Border" x:Key="BorderStyle">
+            <Setter Property="BorderThickness" Value="4"/>  
+            <Setter Property="BorderBrush" Value="{StaticResource Renk}"/>
+            <Setter Property="Background" Value="{StaticResource IcRenk}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="TextStyle"> 
+            <Setter Property="FontFamily" Value="Segoe UI Light"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{StaticResource YaziRengi}"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="ButtonStyle">
+
+            <Setter Property="FontFamily" Value="Segoe UI Light"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Renk}"/>
+            <Setter Property="Background" Value="{StaticResource ButonRengi}"/>
+            <Setter Property="Foreground" Value="{StaticResource YaziRengi}"/>
+            
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Style.Resources>
+
+        </Style>
+        
     </Application.Resources>
 </Application>
