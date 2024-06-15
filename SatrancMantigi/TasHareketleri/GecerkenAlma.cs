@@ -10,6 +10,7 @@
 
         private readonly Konum tasYenilenKonum;
 
+
         public GecerkenAlma(Konum suankiKon, Konum yeniKon)
         {
             suankiKonumdan = suankiKon;

@@ -115,8 +115,8 @@ namespace SatrancMantigi
 
         private bool ElliHamleKurali()
         {
-            int fullMoves = gecerkenAlmaYemeHareketi / 2;
-            return fullMoves == 50;
+            int butunHamleler = gecerkenAlmaYemeHareketi / 2;
+            return butunHamleler == 50;
         }
 
         private void DurumBilgisiniGuncelleme()
